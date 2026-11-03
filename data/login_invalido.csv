@@ -1,0 +1,4 @@
+*** test Cases ***,${email},${senha}
+Senha incorreta,usuario@test.com,senha123
+Sem email,,senha123
+Sem senha,usuario@test.com,
