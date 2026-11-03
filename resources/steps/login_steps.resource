@@ -24,6 +24,11 @@ submeto o formulário para entrar
     Submeter o formulário de cadastro
 
 
+devo visualizar a mensagem de erro
+    [Arguments]     ${mensagem}
+    Wait Until Page Contains           ${mensagem}      timeout=10s
+
+
 devo visualizar a Serverest Store
     Wait Until Page Contains           Serverest Store  timeout=5s
 

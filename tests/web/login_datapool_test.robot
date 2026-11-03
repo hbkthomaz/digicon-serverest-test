@@ -18,8 +18,9 @@ Realizar login incorreto com dados do datapool
 
 *** Keywords ***
 Login deve ser recusado
-    [Arguments]     ${email}    ${senha}
+    [Arguments]     ${email}    ${senha}    ${mensagem}
 
     Dado que a tela de login do sistema carregou
     Quando preencho corretamente meus dados de login    ${email}    ${senha}
     E submeto o formulário para entrar
+    Então devo visualizar a mensagem de erro    ${mensagem}

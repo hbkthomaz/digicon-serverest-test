@@ -1,4 +1,4 @@
-*** test Cases ***,${email},${senha}
-Senha incorreta,usuario@test.com,senha123
-Sem email,,senha123
-Sem senha,usuario@test.com,
+*** test Cases ***,${email},${senha},${mensagem}
+Senha incorreta,usuario@test.com,senha123,Email e/ou senha inválidos
+Sem email,,senha123,Email é obrigatório
+Sem senha,usuario@test.com,,Password é obrigatório
