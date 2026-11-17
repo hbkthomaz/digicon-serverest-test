@@ -56,6 +56,78 @@ Criar administrador e obter token
     RETURN      ${headers}
 
 
+Buscar usuário válido
+    ${resp}=    GET On Session
+    ...    serverest
+    ...    /usuarios
+    ...    expected_status=200
+
+    ${usuarios}=    Set Variable    ${resp.json()}[usuarios]
+
+    FOR    ${usuario}    IN    @{usuarios}
+        IF    '${usuario}[administrador]' == 'false'
+            ${credenciais}=    Create Dictionary
+            ...    email=${usuario}[email]
+            ...    password=${usuario}[password]
+
+            ${login}=    POST On Session
+            ...    serverest
+            ...    /login
+            ...    json=${credenciais}
+            ...    expected_status=any
+
+            IF    ${login.status_code} == 200
+                RETURN    ${usuario}
+            END
+        END
+    END
+
+    Fail    Nenhum usuário não administrador válido foi encontrado
+
+
+Buscar produto válido
+    ${resp}=    GET On Session
+    ...    serverest
+    ...    /produtos
+    ...    expected_status=200
+
+    ${produtos}=    Set Variable    ${resp.json()}[produtos]
+
+    FOR    ${produto}    IN    @{produtos}
+        IF    ${produto}[quantidade] > 0
+            RETURN    ${produto}
+        END
+    END
+
+    Fail    Nenhum produto disponível foi encontrado
+
+
+Validar produto no carrinho via API
+    [Arguments]    ${id_usuario}    ${id_produto}
+
+    ${resp}=    GET On Session
+    ...    serverest
+    ...    /carrinhos
+    ...    expected_status=200
+
+    ${carrinhos}=    Set Variable    ${resp.json()}[carrinhos]
+
+    FOR    ${carrinho}    IN    @{carrinhos}
+        IF    '${carrinho}[idUsuario]' == '${id_usuario}'
+            ${produtos}=    Set Variable    ${carrinho}[produtos]
+
+            FOR    ${item}    IN    @{produtos}
+                IF    '${item}[idProduto]' == '${id_produto}'
+                    Should Be True    ${item}[quantidade] > 0
+                    RETURN
+                END
+            END
+        END
+    END
+
+    Fail    O produto ${id_produto} não foi encontrado no carrinho do usuário ${id_usuario}
+
+
 Excluir E Confirmar Exclusão
     [Arguments]     ${id}       ${headers}
 

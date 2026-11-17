@@ -24,6 +24,16 @@ submeto o formulário para entrar
     Submeter o formulário de cadastro
 
 
+Fazer login
+    [Arguments]     ${email}    ${senha}
+
+    Wait Until Page Contains Element    ${EMAIL_TEXT_FIELD}    timeout=10s
+    Input Text      ${EMAIL_TEXT_FIELD}      ${email}
+    Input Password  ${PASSWORD_TEXT_FIELD}   ${senha}
+    Click Button    xpath: //button[text() = 'Entrar']
+    Wait Until Page Contains Element    xpath: //button[text() = 'Logout']    timeout=10s
+
+
 devo visualizar a mensagem de erro
     [Arguments]     ${mensagem}
     Wait Until Page Contains           ${mensagem}      timeout=10s

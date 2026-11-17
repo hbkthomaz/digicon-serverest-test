@@ -1,7 +1,11 @@
 *** Settings ***
 Documentation       Testes de controle da API
 
+Library             SeleniumLibrary
+
 Resource            ../../resources/configs/api.resource
+Resource            ../../resources/configs/qa.resource
+Resource            ../../resources/steps/login_steps.resource
 
 Suite Setup         Abrir sessão na API
 Suite Teardown      Delete All Sessions
@@ -64,3 +68,29 @@ Cadastrar vários produtos com sucesso
     END
 
     Should Be Equal As Integers     ${cadastrados}      ${total}
+
+
+Produto cadastrado pela API aparece para o administrador
+    [Tags]    e2e    TC_<id>
+    [Setup]    Open Browser    ${URL}    ${BROWSER}
+    [Teardown]    Run Keywords
+    ...    Excluir E Confirmar Exclusão    ${resp.json()}[_id]    ${headers}
+    ...    AND    Close All Browsers
+
+    GROUP    Preparar pela API
+        ${usuario}    ${headers}=    Criar Administrador
+        ${produto}=    Gerar produto
+
+        ${resp}=    POST On Session
+        ...    serverest
+        ...    /produtos
+        ...    json=${produto}
+        ...    headers=${headers}
+        ...    expected_status=201
+    END
+
+    GROUP    Executar pela interface
+        Fazer login    ${usuario}[email]    ${usuario}[password]
+        Click Element    css:[data-testid="listarProdutos"]
+        Wait Until Page Contains    ${produto}[nome]
+    END
