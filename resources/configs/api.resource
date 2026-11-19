@@ -63,26 +63,33 @@ Buscar usuário válido
     ...    expected_status=200
 
     ${usuarios}=    Set Variable    ${resp.json()}[usuarios]
+    ${candidatos}=    Create List
 
     FOR    ${usuario}    IN    @{usuarios}
         IF    '${usuario}[administrador]' == 'false'
-            ${credenciais}=    Create Dictionary
-            ...    email=${usuario}[email]
-            ...    password=${usuario}[password]
-
-            ${login}=    POST On Session
-            ...    serverest
-            ...    /login
-            ...    json=${credenciais}
-            ...    expected_status=any
-
-            IF    ${login.status_code} == 200
-                RETURN    ${usuario}
-            END
+            Append To List    ${candidatos}    ${usuario}
         END
     END
 
-    Fail    Nenhum usuário não administrador válido foi encontrado
+    ${quantidade}=    Get Length    ${candidatos}
+    Should Be True    ${quantidade} > 0
+    ...    msg=Nenhum usuário não administrador foi encontrado
+
+    ${usuario}=    FakerLibrary.Random Element    ${candidatos}
+
+    ${credenciais}=    Create Dictionary
+    ...    email=${usuario}[email]
+    ...    password=${usuario}[password]
+
+    ${login}=    POST On Session
+    ...    serverest
+    ...    /login
+    ...    json=${credenciais}
+    ...    expected_status=any
+
+    Should Be Equal As Integers    ${login.status_code}    200
+    ...    msg=O usuário sorteado não conseguiu realizar login
+    RETURN    ${usuario}
 
 
 Buscar produto válido
@@ -92,14 +99,20 @@ Buscar produto válido
     ...    expected_status=200
 
     ${produtos}=    Set Variable    ${resp.json()}[produtos]
+    ${disponiveis}=    Create List
 
     FOR    ${produto}    IN    @{produtos}
         IF    ${produto}[quantidade] > 0
-            RETURN    ${produto}
+            Append To List    ${disponiveis}    ${produto}
         END
     END
 
-    Fail    Nenhum produto disponível foi encontrado
+    ${quantidade}=    Get Length    ${disponiveis}
+    Should Be True    ${quantidade} > 0
+    ...    msg=Nenhum produto disponível foi encontrado
+
+    ${produto}=    FakerLibrary.Random Element    ${disponiveis}
+    RETURN    ${produto}
 
 
 Validar produto no carrinho via API
